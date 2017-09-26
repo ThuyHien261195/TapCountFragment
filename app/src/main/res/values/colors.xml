@@ -3,4 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="color_time_bg">#696969</color>
+    <color name="color_time_title">#FFFFFF</color>
+    <color name="color_score_title">#696969</color>
+    <color name="color_score_border">#696969</color>
+
 </resources>
