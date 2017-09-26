@@ -1,8 +1,7 @@
 *.iml
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
+/.idea
 .DS_Store
 /build
 /captures
@@ -34,3 +33,7 @@ proguard/
 
 # Log Files
 *.log
+app/src/main/java/com/hasbrain/howfastareyou/HighScore.java
+app/src/main/java/com/hasbrain/howfastareyou/HighScoreAdapter.java
+app/src/main/res/layout/fragment_high_score.xml
+app/src/main/res/layout/item_high_score.xml
