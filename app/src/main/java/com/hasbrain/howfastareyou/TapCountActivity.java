@@ -61,7 +61,8 @@ public class TapCountActivity extends AppCompatActivity {
         tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
-                if (SystemClock.elapsedRealtime() - startTime >= TIME_COUNT) {
+                timeWhenStop = (int) (SystemClock.elapsedRealtime() - startTime);
+                if (timeWhenStop >= TIME_COUNT) {
                     isPause = false;
                     pauseTapping();
                 }
@@ -117,7 +118,7 @@ public class TapCountActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (SystemClock.elapsedRealtime() - startTime < TIME_COUNT || isResume) {
+        if (timeWhenStop < TIME_COUNT) {
             isPause = true;
             pauseTapping();
         }
@@ -166,9 +167,6 @@ public class TapCountActivity extends AppCompatActivity {
 
     private void pauseTapping() {
         if (isPause) {
-            if (!isResume) {
-                timeWhenStop = (int) (SystemClock.elapsedRealtime() - startTime);
-            }
             btStart.setText(getString(R.string.bt_resume_text));
         } else {
             // This case for stop tapping
