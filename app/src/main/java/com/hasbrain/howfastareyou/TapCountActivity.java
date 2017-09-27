@@ -1,6 +1,7 @@
 package com.hasbrain.howfastareyou;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
@@ -20,14 +21,20 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.hasbrain.howfastareyou.SettingsUtils.DEFAULT_RECORD_STATE;
+import static com.hasbrain.howfastareyou.SettingsUtils.DEFAULT_TIME_LIMIT;
+import static com.hasbrain.howfastareyou.SettingsUtils.PREF_RECORD_SCORE;
+import static com.hasbrain.howfastareyou.SettingsUtils.PREF_SETTINGS_FILE;
+import static com.hasbrain.howfastareyou.SettingsUtils.PREF_TIME_LIMIT;
+
 public class TapCountActivity extends AppCompatActivity {
 
-    public static final int TIME_COUNT = 10000; //10s
     public static final String IS_PAUSE = "IsPause";
     public static final String TIME_WHEN_STOP = "imeWhenStoped";
     public static final String SCORE = "ore";
     public static final String TIME_WHEN_STOP_TEXT = "timeStopText";
     public static final String TAG_TAP_COUNT_RESULT_FRAGMENT = "TapCountResultFragment";
+    public static int TIME_COUNT = 10000; //10s
 
     @BindView(R.id.bt_tap)
     Button btTap;
@@ -40,9 +47,10 @@ public class TapCountActivity extends AppCompatActivity {
 
     private TapCountResultFragment tapCountResultFragment;
     private long startTime;
-    private int timeWhenStop;
+    private int timeWhenStop = 0;
     private int tapCount = 0;
     private boolean isPause = false;
+    private boolean isResume = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,8 @@ public class TapCountActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        getSettingsVariable();
+
         FragmentManager fragmentManger = getSupportFragmentManager();
         tapCountResultFragment = (TapCountResultFragment) fragmentManger.findFragmentByTag(
                 TAG_TAP_COUNT_RESULT_FRAGMENT);
@@ -82,6 +92,7 @@ public class TapCountActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         if (savedInstanceState != null) {
+            isResume = true;
             isPause = savedInstanceState.getBoolean(IS_PAUSE);
             tapCount = savedInstanceState.getInt(SCORE);
             timeWhenStop = savedInstanceState.getInt(TIME_WHEN_STOP);
@@ -97,7 +108,7 @@ public class TapCountActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(IS_PAUSE, isPause);
-        outState.putInt(TIME_WHEN_STOP, (int) (SystemClock.elapsedRealtime() - startTime));
+        outState.putInt(TIME_WHEN_STOP, timeWhenStop);
         outState.putInt(SCORE, tapCount);
         outState.putString(TIME_WHEN_STOP_TEXT, tvTime.getText().toString());
         super.onSaveInstanceState(outState);
@@ -106,7 +117,7 @@ public class TapCountActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (SystemClock.elapsedRealtime() - startTime < TIME_COUNT) {
+        if (SystemClock.elapsedRealtime() - startTime < TIME_COUNT || isResume) {
             isPause = true;
             pauseTapping();
         }
@@ -155,12 +166,16 @@ public class TapCountActivity extends AppCompatActivity {
 
     private void pauseTapping() {
         if (isPause) {
-            timeWhenStop = (int) (SystemClock.elapsedRealtime() - startTime);
+            if (!isResume) {
+                timeWhenStop = (int) (SystemClock.elapsedRealtime() - startTime);
+            }
             btStart.setText(getString(R.string.bt_resume_text));
         } else {
             // This case for stop tapping
-            HighScore highScore = createNewHighScore();
-            tapCountResultFragment.addHighScoreIntoList(highScore);
+            if (SettingsUtils.recordState) {
+                HighScore highScore = createNewHighScore();
+                tapCountResultFragment.addHighScoreIntoList(highScore);
+            }
         }
 
         tvTime.stop();
@@ -175,6 +190,7 @@ public class TapCountActivity extends AppCompatActivity {
         btTap.setEnabled(true);
         btStart.setEnabled(false);
         btStart.setText(getString(R.string.bt_start_text));
+        isResume = false;
     }
 
     private void setTapCountValue() {
@@ -186,5 +202,12 @@ public class TapCountActivity extends AppCompatActivity {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String currentTime = simpleDateFormat.format(new Date());
         return new HighScore(currentTime, String.valueOf(tapCount));
+    }
+
+    private void getSettingsVariable() {
+        SharedPreferences sharedPref = this.getSharedPreferences(PREF_SETTINGS_FILE, MODE_PRIVATE);
+        SettingsUtils.timeLimit = sharedPref.getInt(PREF_TIME_LIMIT, DEFAULT_TIME_LIMIT);
+        SettingsUtils.recordState = sharedPref.getBoolean(PREF_RECORD_SCORE, DEFAULT_RECORD_STATE);
+        TIME_COUNT = SettingsUtils.timeLimit * SettingsUtils.numToConvertSec;
     }
 }
