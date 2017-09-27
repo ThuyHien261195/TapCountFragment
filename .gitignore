@@ -33,5 +33,3 @@ proguard/
 
 # Log Files
 *.log
-app/src/main/java/com/hasbrain/howfastareyou/HighScore.java
-app/src/main/java/com/hasbrain/howfastareyou/HighScoreAdapter.java
