@@ -9,4 +9,5 @@
     <color name="color_score_title">#696969</color>
     <color name="color_score_border">#696969</color>
 
+    <color name="color_seek_bar_result_time">#696969</color>
 </resources>

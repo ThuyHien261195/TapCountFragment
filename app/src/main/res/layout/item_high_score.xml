@@ -18,7 +18,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/item_score_divider_height"
+            android:layout_height="@dimen/divider_height"
             android:background="@android:color/transparent" />
     </LinearLayout>
 
@@ -36,7 +36,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/item_score_divider_height"
+            android:layout_height="@dimen/divider_height"
             android:background="@color/color_score_border" />
     </LinearLayout>
 

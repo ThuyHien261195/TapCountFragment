@@ -15,4 +15,11 @@
         <item name="android:layout_weight">1</item>
         <item name="android:textSize">@dimen/item_high_score_text_size</item>
     </style>
+
+    <style name="SettingControllerTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">@dimen/common_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/common_horizontal_padding</item>
+    </style>
 </resources>

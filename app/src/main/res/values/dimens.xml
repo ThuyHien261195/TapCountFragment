@@ -5,6 +5,13 @@
 
     <dimen name="item_high_score_height">30dp</dimen>
     <dimen name="item_high_score_text_size">10sp</dimen>
-    <dimen name="item_score_divider_height">1dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
 
+    <dimen name="tv_seek_bar_text_size">16sp</dimen>
+    <dimen name="tv_time_text_size">14sp</dimen>
+    <dimen name="tv_result_time_margin">5dp</dimen>
+    <dimen name="common_horizontal_padding">16dp</dimen>
+    <dimen name="seek_bar_vertical_margin">20dp</dimen>
+    <dimen name="linear_switch_vertical_padding">15dp</dimen>
+    <dimen name="tv_record_text_size">16sp</dimen>
 </resources>

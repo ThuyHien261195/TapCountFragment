@@ -5,4 +5,8 @@
     <string name="bt_tap_text">TAP</string>
     <string name="settings_text">Settings</string>
     <string name="default_tap_count">0</string>
+
+    <string name="title_time_seek_bar">Time Limit</string>
+    <string name="title_result_time_limit">%1$d sec</string>
+    <string name="title_record_switch">Record highscore</string>
 </resources>
