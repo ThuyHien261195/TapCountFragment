@@ -82,6 +82,6 @@ public class TapCountResultFragment extends Fragment {
     }
 
     public interface OnDataLoadListener {
-        public void onGetBestHighScoreListener(int bestHighScore);
+        void onGetBestHighScoreListener(int bestHighScore);
     }
 }
