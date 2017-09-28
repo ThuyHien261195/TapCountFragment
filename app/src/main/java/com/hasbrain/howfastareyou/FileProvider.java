@@ -21,16 +21,16 @@ import java.util.List;
 public class FileProvider {
     private static final String highScoreFileName = "HighScoreFile";
 
-    public static boolean createFileIfNotExisted(Context context) {
+    public static boolean checkFileExist(Context context) {
         File file = context.getFileStreamPath(highScoreFileName);
-        return (file == null || !file.exists());
+        return !(file == null || !file.exists());
     }
 
     public static List<HighScore> readDataInFile(Context context) {
         List<HighScore> highScoreList = new ArrayList<>();
         FileInputStream fileInputStream;
 
-        if(createFileIfNotExisted(context)) {
+        if (checkFileExist(context)) {
             try {
                 fileInputStream = context.openFileInput(highScoreFileName);
                 InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);

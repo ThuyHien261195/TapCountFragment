@@ -45,7 +45,6 @@ public class TapCountResultFragment extends Fragment {
 
         if (!getRetainInstance()) {
             highScoreList = FileProvider.readDataInFile(getContext());
-            Log.d("Retain", "Not retain");
         }
         initViews();
 
