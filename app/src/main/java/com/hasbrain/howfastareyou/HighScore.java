@@ -6,9 +6,9 @@ package com.hasbrain.howfastareyou;
 
 public class HighScore {
     private String time;
-    private String score;
+    private int score;
 
-    public HighScore(String time, String score) {
+    public HighScore(String time, int score) {
         this.time = time;
         this.score = score;
     }
@@ -21,11 +21,11 @@ public class HighScore {
         this.time = time;
     }
 
-    public String getScore() {
+    public int getScore() {
         return score;
     }
 
-    public void setScore(String score) {
+    public void setScore(int score) {
         this.score = score;
     }
 }
