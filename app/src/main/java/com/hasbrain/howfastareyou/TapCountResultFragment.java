@@ -27,9 +27,21 @@ public class TapCountResultFragment extends Fragment {
 
     private List<HighScore> highScoreList;
     private HighScoreAdapter highScoreAdapter;
+    private OnDataLoadListener highScoreLoadListener;
 
     public static TapCountResultFragment newInstance() {
         return new TapCountResultFragment();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            highScoreLoadListener = (OnDataLoadListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + getString(R.string.error_implement_on_data_load_listener));
+        }
     }
 
     @Nullable
@@ -45,6 +57,10 @@ public class TapCountResultFragment extends Fragment {
 
         if (!getRetainInstance()) {
             highScoreList = FileProvider.readDataInFile(getContext());
+            if (highScoreList.size() > 0) {
+                highScoreLoadListener.onGetBestHighScoreListener(
+                        highScoreList.get(highScoreList.size() - 1).getScore());
+            }
         }
         initViews();
 
@@ -63,5 +79,9 @@ public class TapCountResultFragment extends Fragment {
         FileProvider.writeDataInFile(getContext(), highScore);
         highScoreList.add(highScore);
         highScoreAdapter.notifyDataSetChanged();
+    }
+
+    public interface OnDataLoadListener {
+        public void onGetBestHighScoreListener(int bestHighScore);
     }
 }

@@ -21,7 +21,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class TapCountActivity extends AppCompatActivity {
+public class TapCountActivity extends AppCompatActivity
+        implements TapCountResultFragment.OnDataLoadListener {
 
     public static final String CLOCK_STATE = "ClockState";
     public static final String TIME_WHEN_STOP = "TimeWhenStopped";
@@ -152,6 +153,11 @@ public class TapCountActivity extends AppCompatActivity {
     @OnClick(R.id.bt_tap)
     public void onTapBtnClicked(View v) {
         setTapCountValue(++tapCount);
+    }
+
+    @Override
+    public void onGetBestHighScoreListener(int bestHighScore) {
+        this.bestHighScore = bestHighScore;
     }
 
     private void setClockState(int state) {
