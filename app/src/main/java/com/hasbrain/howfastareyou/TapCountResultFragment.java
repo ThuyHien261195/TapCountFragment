@@ -1,10 +1,12 @@
 package com.hasbrain.howfastareyou;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,7 @@ public class TapCountResultFragment extends Fragment {
     @BindView(R.id.recycler_view_high_score)
     RecyclerView recyclerViewHighScore;
 
-    private List<HighScore> highScoreList = new ArrayList<>();
+    private List<HighScore> highScoreList;
     private HighScoreAdapter highScoreAdapter;
 
     public static TapCountResultFragment newInstance() {
@@ -36,9 +38,17 @@ public class TapCountResultFragment extends Fragment {
         if (container == null) {
             return null;
         }
+
         View view = inflater.inflate(R.layout.fragment_high_score, container, false);
+
         ButterKnife.bind(this, view);
+
+        if (!getRetainInstance()) {
+            highScoreList = FileProvider.readDataInFile(getContext());
+            Log.d("Retain", "Not retain");
+        }
         initViews();
+
         setRetainInstance(true);
         return view;
     }
@@ -51,6 +61,7 @@ public class TapCountResultFragment extends Fragment {
     }
 
     public void addHighScoreIntoList(HighScore highScore) {
+        FileProvider.writeDataInFile(getContext(), highScore);
         highScoreList.add(highScore);
         highScoreAdapter.notifyDataSetChanged();
     }
