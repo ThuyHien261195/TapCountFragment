@@ -15,6 +15,7 @@ import android.widget.Chronometer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,7 +29,6 @@ public class TapCountActivity extends AppCompatActivity {
     public static final String BEST_HIGH_SCORE = "BestHighScore";
     public static final String TAG_TAP_COUNT_RESULT_FRAGMENT = "TapCountResultFragment";
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-    public static final int numToConvertSec = 1000;
 
     @BindView(R.id.bt_tap)
     Button btTap;
@@ -65,10 +65,10 @@ public class TapCountActivity extends AppCompatActivity {
         tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
-                timeWhenStop = (int) (SystemClock.elapsedRealtime() - tvTime.getBase());
-                if (timeWhenStop >= settingsModel.getTimeLimit() * numToConvertSec) {
+                if (SystemClock.elapsedRealtime() - tvTime.getBase() >= settingsModel.getTimeLimit()) {
                     setClockState(CLOCK_STOPPED);
                 }
+                timeWhenStop = (int) (SystemClock.elapsedRealtime() - tvTime.getBase());
             }
         });
 
@@ -202,7 +202,7 @@ public class TapCountActivity extends AppCompatActivity {
     }
 
     private HighScore createNewHighScore() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
         String currentTime = simpleDateFormat.format(new Date());
         return new HighScore(currentTime, tapCount);
     }

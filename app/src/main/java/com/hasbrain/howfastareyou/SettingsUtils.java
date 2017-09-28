@@ -14,7 +14,7 @@ public class SettingsUtils {
     public static final String PREF_TIME_LIMIT = "TimeLimit";
     public static final String PREF_RECORD_SCORE = "RecordScore";
     public static final int MIN_TIME_LIMIT = 5;
-    public static final int DEFAULT_TIME_LIMIT = 10;
+    public static final int DEFAULT_TIME_LIMIT = 10000;
     public static final boolean DEFAULT_RECORD_STATE = true;
 
     public static SettingsModel getSettingsModel(Context context) {
