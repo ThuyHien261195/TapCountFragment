@@ -26,6 +26,6 @@ public class HighScoreViewHolder extends RecyclerView.ViewHolder {
 
     public void bindHighScoreView(HighScore highScore) {
         textViewTime.setText(highScore.getTime());
-        textViewScore.setText(highScore.getScore());
+        textViewScore.setText(String.valueOf(highScore.getScore()));
     }
 }
