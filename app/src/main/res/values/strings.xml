@@ -10,4 +10,5 @@
     <string name="title_result_time_limit">%1$d sec</string>
     <string name="title_record_switch">Record highscore</string>
     <string name="error_file_not_found">%1$s file not found.</string>
+    <string name="error_implement_on_data_load_listener">\u0020must implement OnDataLoadListener</string>
 </resources>
