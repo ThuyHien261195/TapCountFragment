@@ -7,6 +7,8 @@ import android.support.v7.widget.SwitchCompat;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -17,6 +19,8 @@ import static com.hasbrain.howfastareyou.SettingsUtils.PREF_SETTINGS_FILE;
  * Created by Jupiter (vu.cao.duy@gmail.com) on 10/14/15.
  */
 public class SettingsActivity extends AppCompatActivity {
+
+    public static final int numToConvertSec = 1000;
 
     @BindView(R.id.seek_bar_time_limit)
     SeekBar seekBarTimeLimit;
@@ -73,12 +77,14 @@ public class SettingsActivity extends AppCompatActivity {
     private void initViews() {
         switchRecordScore.setChecked(settingsModel.isRecordState());
         realProgress = settingsModel.getTimeLimit();
-        textViewTimeLimit.setText(getString(R.string.title_result_time_limit, realProgress));
 
-        if (settingsModel.getTimeLimit() <= MIN_TIME_LIMIT) {
+        int seekBarProgress = realProgress / numToConvertSec;
+        textViewTimeLimit.setText(getString(R.string.title_result_time_limit, seekBarProgress));
+
+        if (seekBarProgress <= MIN_TIME_LIMIT) {
             seekBarTimeLimit.setProgress(0);
         } else {
-            seekBarTimeLimit.setProgress(settingsModel.getTimeLimit());
+            seekBarTimeLimit.setProgress(seekBarProgress);
         }
 
         seekBarTimeLimit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -87,7 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if (progress < SettingsUtils.MIN_TIME_LIMIT) {
                     progress = SettingsUtils.MIN_TIME_LIMIT;
                 }
-                realProgress = progress;
+                realProgress = progress * numToConvertSec;
                 textViewTimeLimit.setText(getString(R.string.title_result_time_limit, progress));
             }
 
