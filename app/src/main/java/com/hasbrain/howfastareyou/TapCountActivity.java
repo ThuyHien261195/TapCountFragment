@@ -1,7 +1,6 @@
 package com.hasbrain.howfastareyou;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
@@ -21,20 +20,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.hasbrain.howfastareyou.SettingsUtils.DEFAULT_RECORD_STATE;
-import static com.hasbrain.howfastareyou.SettingsUtils.DEFAULT_TIME_LIMIT;
-import static com.hasbrain.howfastareyou.SettingsUtils.PREF_RECORD_SCORE;
-import static com.hasbrain.howfastareyou.SettingsUtils.PREF_SETTINGS_FILE;
-import static com.hasbrain.howfastareyou.SettingsUtils.PREF_TIME_LIMIT;
-
 public class TapCountActivity extends AppCompatActivity {
 
-    public static final String IS_PAUSE = "IsPause";
-    public static final String TIME_WHEN_STOP = "imeWhenStoped";
-    public static final String SCORE = "ore";
-    public static final String TIME_WHEN_STOP_TEXT = "timeStopText";
+    public static final String CLOCK_STATE = "ClockState";
+    public static final String TIME_WHEN_STOP = "TimeWhenStopped";
+    public static final String SCORE = "Score";
+    public static final String BEST_HIGH_SCORE = "BestHighScore";
     public static final String TAG_TAP_COUNT_RESULT_FRAGMENT = "TapCountResultFragment";
-    public static int TIME_COUNT = 10000; //10s
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
+    public static final int numToConvertSec = 1000;
 
     @BindView(R.id.bt_tap)
     Button btTap;
@@ -46,11 +40,16 @@ public class TapCountActivity extends AppCompatActivity {
     AppCompatTextView tvScore;
 
     private TapCountResultFragment tapCountResultFragment;
-    private long startTime;
+    public SettingsModel settingsModel;
+
     private int timeWhenStop = 0;
     private int tapCount = 0;
-    private boolean isPause = false;
-    private boolean isResume = false;
+    private int bestHighScore = 0;
+
+    public static final int CLOCK_RESUMED = 0;
+    public static final int CLOCK_PAUSED = 1;
+    public static final int CLOCK_STOPPED = 2;
+    private int clockState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,21 +57,20 @@ public class TapCountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_count);
         ButterKnife.bind(this);
 
-        tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                timeWhenStop = (int) (SystemClock.elapsedRealtime() - startTime);
-                if (timeWhenStop >= TIME_COUNT) {
-                    isPause = false;
-                    pauseTapping();
-                }
-            }
-        });
+        settingsModel = SettingsUtils.getSettingsModel(this);
         initViews();
     }
 
     private void initViews() {
-        getSettingsVariable();
+        tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometer) {
+                timeWhenStop = (int) (SystemClock.elapsedRealtime() - tvTime.getBase());
+                if (timeWhenStop >= settingsModel.getTimeLimit() * numToConvertSec) {
+                    setClockState(CLOCK_STOPPED);
+                }
+            }
+        });
 
         FragmentManager fragmentManger = getSupportFragmentManager();
         tapCountResultFragment = (TapCountResultFragment) fragmentManger.findFragmentByTag(
@@ -93,34 +91,30 @@ public class TapCountActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         if (savedInstanceState != null) {
-            isResume = true;
-            isPause = savedInstanceState.getBoolean(IS_PAUSE);
             tapCount = savedInstanceState.getInt(SCORE);
             timeWhenStop = savedInstanceState.getInt(TIME_WHEN_STOP);
+            bestHighScore = savedInstanceState.getInt(BEST_HIGH_SCORE);
 
             tvScore.setText(String.valueOf(tapCount));
-            tvTime.setText(savedInstanceState.getString(TIME_WHEN_STOP_TEXT));
-            if (isPause) {
-                btStart.setText(getString(R.string.bt_resume_text));
-            }
+            tvTime.setBase(SystemClock.elapsedRealtime() - timeWhenStop);
+            setClockState(savedInstanceState.getInt(CLOCK_STATE));
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(IS_PAUSE, isPause);
+        outState.putInt(CLOCK_STATE, clockState);
         outState.putInt(TIME_WHEN_STOP, timeWhenStop);
         outState.putInt(SCORE, tapCount);
-        outState.putString(TIME_WHEN_STOP_TEXT, tvTime.getText().toString());
+        outState.putInt(BEST_HIGH_SCORE, bestHighScore);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (timeWhenStop < TIME_COUNT) {
-            isPause = true;
-            pauseTapping();
+        if (clockState != CLOCK_STOPPED) {
+            setClockState(CLOCK_PAUSED);
         }
     }
 
@@ -134,78 +128,90 @@ public class TapCountActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_settings) {
             Intent showSettingsActivity = new Intent(this, SettingsActivity.class);
-            startActivity(showSettingsActivity);
+            startActivityForResult(showSettingsActivity, REQUEST_CODE_SETTINGS_ACTIVITY);
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY && resultCode == RESULT_OK) {
+            int oldTimeLimit = settingsModel.getTimeLimit();
+            settingsModel = SettingsUtils.getSettingsModel(this);
+            if (oldTimeLimit != settingsModel.getTimeLimit()) {
+                setClockState(CLOCK_STOPPED);
+            }
+        }
+    }
+
     @OnClick(R.id.bt_start)
     public void onStartBtnClicked(View v) {
-        if (isPause) {
-            resumeTapping();
-        } else {
-            startTapping();
-        }
+        setClockState(CLOCK_RESUMED);
     }
 
     @OnClick(R.id.bt_tap)
     public void onTapBtnClicked(View v) {
-        setTapCountValue();
+        setTapCountValue(++tapCount);
     }
 
-    private void startTapping() {
-        startTime = SystemClock.elapsedRealtime();
-        tvTime.setBase(SystemClock.elapsedRealtime());
-        tvTime.start();
-        btTap.setEnabled(true);
-        btStart.setEnabled(false);
-
-        // Reset tap count value
-        tapCount = 0;
-        tvScore.setText(String.valueOf(tapCount));
-    }
-
-    private void pauseTapping() {
-        if (isPause) {
-            btStart.setText(getString(R.string.bt_resume_text));
-        } else {
-            // This case for stop tapping
-            if (SettingsUtils.recordState) {
-                HighScore highScore = createNewHighScore();
-                tapCountResultFragment.addHighScoreIntoList(highScore);
-            }
+    private void setClockState(int state) {
+        switch (state) {
+            case CLOCK_RESUMED:
+                if (clockState == CLOCK_PAUSED) {
+                    startTapping(timeWhenStop);
+                } else {
+                    setTapCountValue(0);
+                    startTapping(0);
+                }
+                break;
+            case CLOCK_PAUSED:
+                btStart.setText(getString(R.string.bt_resume_text));
+                setCommonUIWhenPause();
+                break;
+            case CLOCK_STOPPED:
+                btStart.setText(getString(R.string.bt_start_text));
+                if (settingsModel.isRecordState()) {
+                    saveHighScore();
+                }
+                setCommonUIWhenPause();
+                break;
+            default:
+                break;
         }
-
-        tvTime.stop();
-        btTap.setEnabled(false);
-        btStart.setEnabled(true);
+        clockState = state;
     }
 
-    private void resumeTapping() {
-        startTime = SystemClock.elapsedRealtime() - timeWhenStop;
+    private void startTapping(int timeWhenStop) {
+        long startTime = SystemClock.elapsedRealtime() - timeWhenStop;
         tvTime.setBase(startTime);
         tvTime.start();
         btTap.setEnabled(true);
         btStart.setEnabled(false);
         btStart.setText(getString(R.string.bt_start_text));
-        isResume = false;
     }
 
-    private void setTapCountValue() {
-        tapCount++;
+    private void setCommonUIWhenPause() {
+        tvTime.stop();
+        btTap.setEnabled(false);
+        btStart.setEnabled(true);
+    }
+
+    private void setTapCountValue(int count) {
+        tapCount = count;
         tvScore.setText(String.valueOf(tapCount));
     }
 
     private HighScore createNewHighScore() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String currentTime = simpleDateFormat.format(new Date());
-        return new HighScore(currentTime, String.valueOf(tapCount));
+        return new HighScore(currentTime, tapCount);
     }
 
-    private void getSettingsVariable() {
-        SharedPreferences sharedPref = this.getSharedPreferences(PREF_SETTINGS_FILE, MODE_PRIVATE);
-        SettingsUtils.timeLimit = sharedPref.getInt(PREF_TIME_LIMIT, DEFAULT_TIME_LIMIT);
-        SettingsUtils.recordState = sharedPref.getBoolean(PREF_RECORD_SCORE, DEFAULT_RECORD_STATE);
-        TIME_COUNT = SettingsUtils.timeLimit * SettingsUtils.numToConvertSec;
+    private void saveHighScore() {
+        if (bestHighScore == 0 || tapCount > bestHighScore) {
+            HighScore highScore = createNewHighScore();
+            tapCountResultFragment.addHighScoreIntoList(highScore);
+            bestHighScore = tapCount;
+        }
     }
 }
