@@ -1,4 +1,6 @@
-package com.hasbrain.howfastareyou;
+package com.hasbrain.howfastareyou.Model;
+
+import java.io.Serializable;
 
 /**
  * Created by thuyhien on 9/26/17.
