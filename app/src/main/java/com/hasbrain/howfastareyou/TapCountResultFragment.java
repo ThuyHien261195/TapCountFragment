@@ -16,7 +16,6 @@ import com.hasbrain.howfastareyou.Utils.FileProvider;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -80,7 +79,7 @@ public class TapCountResultFragment extends Fragment {
     }
 
     public void addHighScoreIntoList(HighScore highScore) {
-        FileProvider.writeDataIntoInternalFile(getContext(), highScore);
+        FileProvider.writeDataIntoFile(getContext(), highScore);
         highScoreList.add(highScore);
         highScoreAdapter.notifyDataSetChanged();
     }

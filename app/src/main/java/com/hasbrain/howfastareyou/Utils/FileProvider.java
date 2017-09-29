@@ -32,7 +32,7 @@ public class FileProvider {
         return !(file == null || !file.exists());
     }
 
-    public static ArrayList<HighScore> readDataFromInternalFile(Context context) {
+    public static ArrayList<HighScore> readDataFromFile(Context context) {
         ArrayList<HighScore> highScoreList = new ArrayList<>();
 
         try {
@@ -54,7 +54,7 @@ public class FileProvider {
         return highScoreList;
     }
 
-    public static void writeDataIntoInternalFile(Context context, HighScore highScore) {
+    public static void writeDataIntoFile(Context context, HighScore highScore) {
         if (highScore != null) {
             JSONObject jsonHighScore = createHighScoreToJSON(highScore);
             try {

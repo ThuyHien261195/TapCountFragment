@@ -8,7 +8,6 @@ import com.hasbrain.howfastareyou.OnReadFileListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by thuyhien on 9/29/17.
@@ -26,7 +25,7 @@ public class ReadFileTask extends AsyncTask<Void, Void, ArrayList<HighScore>> {
 
     @Override
     protected ArrayList<HighScore> doInBackground(Void... params) {
-        return FileProvider.readDataFromInternalFile(weakContext.get());
+        return FileProvider.readDataFromFile(weakContext.get());
     }
 
     @Override
