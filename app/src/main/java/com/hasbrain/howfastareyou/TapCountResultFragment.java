@@ -11,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hasbrain.howfastareyou.Model.HighScore;
+import com.hasbrain.howfastareyou.Utils.FileProvider;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,26 +26,25 @@ import butterknife.ButterKnife;
  */
 public class TapCountResultFragment extends Fragment {
 
+    private static final String BUNDLE_HIGH_SCORE_LIST = "BUNDLE_HIGH_SCORE_LIST";
+
     @BindView(R.id.recycler_view_high_score)
     RecyclerView recyclerViewHighScore;
 
-    private List<HighScore> highScoreList;
+    private ArrayList<HighScore> highScoreList;
     private HighScoreAdapter highScoreAdapter;
-    private OnDataLoadListener highScoreLoadListener;
 
-    public static TapCountResultFragment newInstance() {
-        return new TapCountResultFragment();
+    public static TapCountResultFragment newInstance(ArrayList<HighScore> highScoreList) {
+        TapCountResultFragment tapCountResultFragment = new TapCountResultFragment();
+        Bundle highScoreBundle = new Bundle();
+        highScoreBundle.putSerializable(BUNDLE_HIGH_SCORE_LIST, highScoreList);
+        tapCountResultFragment.setArguments(highScoreBundle);
+        return tapCountResultFragment;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
-            highScoreLoadListener = (OnDataLoadListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + getString(R.string.error_implement_on_data_load_listener));
-        }
     }
 
     @Nullable
@@ -54,18 +57,19 @@ public class TapCountResultFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_high_score, container, false);
 
         ButterKnife.bind(this, view);
-
         if (!getRetainInstance()) {
-            highScoreList = FileProvider.readDataInFile(getContext());
-            if (highScoreList.size() > 0) {
-                highScoreLoadListener.onGetBestHighScoreListener(
-                        highScoreList.get(highScoreList.size() - 1).getScore());
-            }
+            getHighScoreBundle();
+            Log.d("Retain", "retain again");
         }
         initViews();
-
         setRetainInstance(true);
         return view;
+    }
+
+    public void getHighScoreBundle() {
+        Serializable highScoreSerializable = getArguments().getSerializable(BUNDLE_HIGH_SCORE_LIST);
+        highScoreList = (ArrayList<HighScore>) highScoreSerializable;
+        getArguments().remove(BUNDLE_HIGH_SCORE_LIST);
     }
 
     private void initViews() {
@@ -76,12 +80,8 @@ public class TapCountResultFragment extends Fragment {
     }
 
     public void addHighScoreIntoList(HighScore highScore) {
-        FileProvider.writeDataInFile(getContext(), highScore);
+        FileProvider.writeDataIntoInternalFile(getContext(), highScore);
         highScoreList.add(highScore);
         highScoreAdapter.notifyDataSetChanged();
-    }
-
-    public interface OnDataLoadListener {
-        void onGetBestHighScoreListener(int bestHighScore);
     }
 }
