@@ -7,13 +7,14 @@ import android.support.v7.widget.SwitchCompat;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.Set;
+import com.hasbrain.howfastareyou.Model.SettingsModel;
+import com.hasbrain.howfastareyou.Utils.SettingsUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.hasbrain.howfastareyou.SettingsUtils.MIN_TIME_LIMIT;
-import static com.hasbrain.howfastareyou.SettingsUtils.PREF_SETTINGS_FILE;
+import static com.hasbrain.howfastareyou.Utils.SettingsUtils.MIN_TIME_LIMIT;
+import static com.hasbrain.howfastareyou.Utils.SettingsUtils.PREF_SETTINGS_FILE_NAME;
 
 /**
  * Created by Jupiter (vu.cao.duy@gmail.com) on 10/14/15.
@@ -67,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void storeSettingsVariable() {
-        SharedPreferences sharedPref = this.getSharedPreferences(PREF_SETTINGS_FILE, MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(PREF_SETTINGS_FILE_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(SettingsUtils.PREF_TIME_LIMIT, realProgress);
         editor.putBoolean(SettingsUtils.PREF_RECORD_SCORE, switchRecordScore.isChecked());
