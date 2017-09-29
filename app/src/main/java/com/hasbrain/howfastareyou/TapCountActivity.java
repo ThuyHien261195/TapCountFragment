@@ -10,11 +10,19 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
 
+import com.hasbrain.howfastareyou.Model.HighScore;
+import com.hasbrain.howfastareyou.Model.SettingsModel;
+import com.hasbrain.howfastareyou.Utils.ReadFileTask;
+import com.hasbrain.howfastareyou.Utils.SettingsUtils;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -22,13 +30,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class TapCountActivity extends AppCompatActivity
-        implements TapCountResultFragment.OnDataLoadListener {
+        implements OnReadFileListener {
 
-    public static final String CLOCK_STATE = "ClockState";
-    public static final String TIME_WHEN_STOP = "TimeWhenStopped";
-    public static final String SCORE = "Score";
-    public static final String BEST_HIGH_SCORE = "BestHighScore";
-    public static final String TAG_TAP_COUNT_RESULT_FRAGMENT = "TapCountResultFragment";
+    public static final String CLOCK_STATE = "CLOCK_STATE";
+    public static final String TIME_WHEN_STOP = "TIME_WHEN_STOP";
+    public static final String SCORE = "SCORE";
+    public static final String BEST_HIGH_SCORE = "BEST_HIGH_SCORE";
+    public static final String TAG_TAP_COUNT_RESULT_FRAGMENT = "TAG_TAP_COUNT_RESULT_FRAGMENT";
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
 
     @BindView(R.id.bt_tap)
@@ -59,32 +67,8 @@ public class TapCountActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         settingsModel = SettingsUtils.getSettingsModel(this);
-        initViews();
-    }
-
-    private void initViews() {
-        tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                if (SystemClock.elapsedRealtime() - tvTime.getBase() >= settingsModel.getTimeLimit()) {
-                    setClockState(CLOCK_STOPPED);
-                }
-                timeWhenStop = (int) (SystemClock.elapsedRealtime() - tvTime.getBase());
-            }
-        });
-
-        FragmentManager fragmentManger = getSupportFragmentManager();
-        tapCountResultFragment = (TapCountResultFragment) fragmentManger.findFragmentByTag(
-                TAG_TAP_COUNT_RESULT_FRAGMENT);
-
-        if (tapCountResultFragment == null) {
-            tapCountResultFragment = TapCountResultFragment.newInstance();
-            FragmentTransaction fragmentTransaction = fragmentManger.beginTransaction();
-            fragmentTransaction.add(R.id.fl_result_fragment,
-                    tapCountResultFragment,
-                    TAG_TAP_COUNT_RESULT_FRAGMENT);
-            fragmentTransaction.commit();
-        }
+        ReadFileTask readFileTask = new ReadFileTask(this);
+        readFileTask.execute();
     }
 
     @Override
@@ -156,9 +140,38 @@ public class TapCountActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGetBestHighScoreListener(int bestHighScore) {
-        this.bestHighScore = bestHighScore;
+    public void onReadHighScoreSuccess(ArrayList<HighScore> highScoreList) {
+        if(highScoreList.size() > 0) {
+            this.bestHighScore = highScoreList.get(highScoreList.size() - 1).getScore();
+        }
+        initViews(highScoreList);
     }
+
+    private void initViews(ArrayList<HighScore> highScoreList) {
+        tvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometer) {
+                if (SystemClock.elapsedRealtime() - tvTime.getBase() >= settingsModel.getTimeLimit()) {
+                    setClockState(CLOCK_STOPPED);
+                }
+                timeWhenStop = (int) (SystemClock.elapsedRealtime() - tvTime.getBase());
+            }
+        });
+
+        FragmentManager fragmentManger = getSupportFragmentManager();
+        tapCountResultFragment = (TapCountResultFragment) fragmentManger.findFragmentByTag(
+                TAG_TAP_COUNT_RESULT_FRAGMENT);
+
+        if (tapCountResultFragment == null) {
+            tapCountResultFragment = TapCountResultFragment.newInstance(highScoreList);
+            FragmentTransaction fragmentTransaction = fragmentManger.beginTransaction();
+            fragmentTransaction.add(R.id.fl_result_fragment,
+                    tapCountResultFragment,
+                    TAG_TAP_COUNT_RESULT_FRAGMENT);
+            fragmentTransaction.commit();
+        }
+    }
+
 
     private void setClockState(int state) {
         switch (state) {
