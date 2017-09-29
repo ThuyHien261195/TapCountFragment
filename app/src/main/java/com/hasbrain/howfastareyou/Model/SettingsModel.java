@@ -1,4 +1,4 @@
-package com.hasbrain.howfastareyou;
+package com.hasbrain.howfastareyou.Model;
 
 /**
  * Created by thuyhien on 9/28/17.
