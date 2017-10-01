@@ -46,6 +46,15 @@ public class TapCountResultFragment extends Fragment {
         super.onAttach(context);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getHighScoreBundle();
+
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,13 +65,12 @@ public class TapCountResultFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_high_score, container, false);
 
         ButterKnife.bind(this, view);
-        if (!getRetainInstance()) {
-            getHighScoreBundle();
-            Log.d("Retain", "retain again");
-        }
-        initViews();
-        setRetainInstance(true);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        initViews();
     }
 
     public void getHighScoreBundle() {
