@@ -3,6 +3,8 @@ package com.hasbrain.howfastareyou.Utils;
 import android.content.Context;
 import android.os.Environment;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hasbrain.howfastareyou.Model.HighScore;
 
 import org.json.JSONException;
@@ -44,7 +46,7 @@ public class FileProvider {
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String line = "";
                 while ((line = bufferedReader.readLine()) != null) {
-                    HighScore highScore = convertJSONToHighScoreModel(line);
+                    HighScore highScore = convertGsonToHighScoreModel(line);
                     if (highScore != null) {
                         highScoreList.add(highScore);
                     }
@@ -59,13 +61,13 @@ public class FileProvider {
 
     public static void writeDataIntoFile(Context context, HighScore highScore) {
         if (highScore != null) {
-            JSONObject jsonHighScore = createHighScoreToJSON(highScore);
             try {
                 FileOutputStream fileOutputStream = createFileOutputStream(context);
                 if (fileOutputStream != null) {
+                    String gsonHighScore = createHighScoreToGson(highScore);
                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
                     BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
-                    bufferedWriter.write(jsonHighScore.toString());
+                    bufferedWriter.write(gsonHighScore);
                     bufferedWriter.newLine();
                     bufferedWriter.close();
                     fileOutputStream.close();
@@ -74,29 +76,6 @@ public class FileProvider {
                 e.printStackTrace();
             }
         }
-    }
-
-    private static HighScore convertJSONToHighScoreModel(String highScoreline) {
-        try {
-            JSONObject jsonObject = new JSONObject(highScoreline);
-            String time = jsonObject.getString(TAG_TIME);
-            int score = jsonObject.getInt(TAG_SCORE);
-            return new HighScore(time, score);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static JSONObject createHighScoreToJSON(HighScore highScore) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put(TAG_TIME, highScore.getTime());
-            jsonObject.put(TAG_SCORE, highScore.getScore());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
     }
 
     private static FileOutputStream createFileOutputStream(Context context) {
@@ -151,5 +130,40 @@ public class FileProvider {
             return null;
         }
         return new File(dir, HIGH_SCORE_FILE_NAME);
+    }
+
+    private static HighScore convertJSONToHighScoreModel(String highScoreline) {
+        try {
+            JSONObject jsonObject = new JSONObject(highScoreline);
+            String time = jsonObject.getString(TAG_TIME);
+            int score = jsonObject.getInt(TAG_SCORE);
+            return new HighScore(time, score);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static JSONObject createHighScoreToJSON(HighScore highScore) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(TAG_TIME, highScore.getTime());
+            jsonObject.put(TAG_SCORE, highScore.getScore());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    private static String createHighScoreToGson(HighScore highScore) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.create();
+        return gson.toJson(highScore);
+    }
+
+    private static HighScore convertGsonToHighScoreModel(String highScoreLine) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.create();
+        return gson.fromJson(highScoreLine, HighScore.class);
     }
 }
