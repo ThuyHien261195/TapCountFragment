@@ -51,7 +51,7 @@ public class TapCountActivity extends AppCompatActivity
     private TapCountResultFragment tapCountResultFragment;
     public SettingsModel settingsModel;
 
-    private int timeWhenStop = 0;
+    private int timeWhenStop = -1; // initial value
     private int tapCount = 0;
     private int bestHighScore = 0;
 
@@ -184,7 +184,9 @@ public class TapCountActivity extends AppCompatActivity
                 }
                 break;
             case CLOCK_PAUSED:
-                btStart.setText(getString(R.string.bt_resume_text));
+                if(timeWhenStop != -1) {
+                    btStart.setText(getString(R.string.bt_resume_text));
+                }
                 setCommonUIWhenPause();
                 break;
             case CLOCK_STOPPED:
