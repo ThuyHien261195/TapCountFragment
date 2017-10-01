@@ -19,6 +19,14 @@ public class SettingsUtils {
     public static final int DEFAULT_TIME_LIMIT = 10000;
     public static final boolean DEFAULT_RECORD_STATE = true;
 
+    public static void storeSettingsVariable(Context context, int timeLimit, boolean recordState) {
+        SharedPreferences sharedPref = context.getSharedPreferences(PREF_SETTINGS_FILE_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(SettingsUtils.PREF_TIME_LIMIT, timeLimit);
+        editor.putBoolean(SettingsUtils.PREF_RECORD_SCORE, recordState);
+        editor.apply();
+    }
+
     public static SettingsModel getSettingsModel(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(PREF_SETTINGS_FILE_NAME, MODE_PRIVATE);
         int timeLimit = sharedPref.getInt(PREF_TIME_LIMIT, DEFAULT_TIME_LIMIT);
