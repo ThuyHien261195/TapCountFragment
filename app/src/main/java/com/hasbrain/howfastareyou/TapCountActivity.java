@@ -141,7 +141,7 @@ public class TapCountActivity extends AppCompatActivity
 
     @Override
     public void onReadHighScoreSuccess(ArrayList<HighScore> highScoreList) {
-        if(highScoreList.size() > 0) {
+        if (highScoreList.size() > 0) {
             this.bestHighScore = highScoreList.get(highScoreList.size() - 1).getScore();
         }
         initViews(highScoreList);
